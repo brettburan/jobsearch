@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+{% block title %}Jobs - Job Tracker{% endblock %}
+{% block content %}
+<hgroup>
+    <h2>Jobs{% if group_label %} &mdash; {{ group_label }}{% endif %}</h2>
+    <p>{{ jobs|length }} job{{ 's' if jobs|length != 1 }} shown
+    {% if group_filter %} <a href="{{ url_for('jobs_list') }}">(clear filter)</a>{% endif %}</p>
+</hgroup>
+
+<form method="get" action="{{ url_for('jobs_list') }}" class="filter-form">
+    <fieldset role="group">
+        <select name="status" aria-label="Filter by status">
+            <option value="">All Statuses</option>
+            {% for s in statuses %}
+            <option value="{{ s }}" {% if s == status_filter %}selected{% endif %}>{{ s }}</option>
+            {% endfor %}
+        </select>
+        <select name="priority" aria-label="Filter by priority">
+            <option value="">All Priorities</option>
+            {% for p in priorities %}
+            <option value="{{ p }}" {% if p == priority_filter %}selected{% endif %}>{{ p }}</option>
+            {% endfor %}
+        </select>
+        <label style="display:flex;align-items:center;gap:0.5rem;margin:0;white-space:nowrap">
+            <input type="checkbox" name="show_hidden" value="1" {% if show_hidden %}checked{% endif %} role="switch" style="margin:0">
+            Show Hidden
+        </label>
+        <input type="submit" value="Filter">
+        {% if status_filter or priority_filter or show_hidden %}
+        <a href="{{ url_for('jobs_list') }}" role="button" class="outline secondary">Clear</a>
+        {% endif %}
+    </fieldset>
+</form>
+
+<figure>
+<table class="jobs-table">
+    <thead>
+        <tr>
+            <th>#</th>
+            <th>
+                <a href="{{ url_for('jobs_list', sort='company', dir='desc' if sort_by == 'company' and sort_dir == 'asc' else 'asc', status=status_filter, priority=priority_filter) }}">
+                    Company {% if sort_by == 'company' %}{{ '&#9650;' if sort_dir == 'asc' else '&#9660;' }}{% endif %}
+                </a>
+            </th>
+            <th>Position</th>
+            <th>
+                <a href="{{ url_for('jobs_list', sort='status', dir='desc' if sort_by == 'status' and sort_dir == 'asc' else 'asc', status=status_filter, priority=priority_filter) }}">
+                    Status {% if sort_by == 'status' %}{{ '&#9650;' if sort_dir == 'asc' else '&#9660;' }}{% endif %}
+                </a>
+            </th>
+            <th>
+                <a href="{{ url_for('jobs_list', sort='priority', dir='desc' if sort_by == 'priority' and sort_dir == 'asc' else 'asc', status=status_filter, priority=priority_filter) }}">
+                    Priority {% if sort_by == 'priority' %}{{ '&#9650;' if sort_dir == 'asc' else '&#9660;' }}{% endif %}
+                </a>
+            </th>
+            <th>
+                <a href="{{ url_for('jobs_list', sort='salary', dir='desc' if sort_by == 'salary' and sort_dir == 'asc' else 'asc', status=status_filter, priority=priority_filter) }}">
+                    Total Comp {% if sort_by == 'salary' %}{{ '&#9650;' if sort_dir == 'asc' else '&#9660;' }}{% endif %}
+                </a>
+            </th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for job in jobs %}
+        <tr>
+            <td>{{ loop.index }}</td>
+            <td>
+                <a href="{{ url_for('job_detail', index=job._index) }}">{{ job.Company }}</a>
+                {% if job.Hidden and job.Hidden|lower == 'yes' %}<span class="badge badge-hidden">Hidden</span>{% endif %}
+            </td>
+            <td>{{ job.Position }}</td>
+            <td><span class="badge badge-status-{{ job.Status | replace(' ', '-') | lower }}">{{ job.Status }}</span></td>
+            <td><span class="badge badge-priority-{{ job.Priority | lower }}">{{ job.Priority }}</span></td>
+            <td>{{ job['Total Comp Est.'] or '&mdash;' }}</td>
+            <td>
+                {% if job['Job URL'] %}<a href="{{ job['Job URL'] }}" target="_blank" rel="noopener">Posting</a>{% endif %}
+                <a href="{{ url_for('job_detail', index=job._index) }}">View</a>
+                <a href="{{ url_for('job_edit', index=job._index) }}">Edit</a>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+</figure>
+{% endblock %}

@@ -1,0 +1,240 @@
+/* Stats grid */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.stats-grid article {
+    text-align: center;
+    margin-bottom: 0;
+}
+
+.stats-grid article header {
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--muted-color);
+}
+
+.stat-number {
+    font-size: 2rem;
+    font-weight: 700;
+    margin: 0;
+}
+
+.stat-link {
+    text-decoration: none;
+    color: inherit;
+}
+
+.stat-link article {
+    cursor: pointer;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.stat-link article:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* Badges */
+.badge {
+    display: inline-block;
+    padding: 0.15em 0.5em;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+/* Priority badges */
+.badge-priority-critical {
+    background: #dc3545;
+    color: #fff;
+}
+
+.badge-priority-high {
+    background: #fd7e14;
+    color: #fff;
+}
+
+.badge-priority-medium {
+    background: #ffc107;
+    color: #212529;
+}
+
+.badge-priority-low {
+    background: #6c757d;
+    color: #fff;
+}
+
+/* Status badges */
+.badge-status-not-applied {
+    background: #6c757d;
+    color: #fff;
+}
+
+.badge-status-applied {
+    background: #0d6efd;
+    color: #fff;
+}
+
+.badge-status-phone-screen-scheduled,
+.badge-status-phone-screen-complete,
+.badge-status-technical-interview-scheduled,
+.badge-status-technical-interview-complete,
+.badge-status-on-site\/virtual-interview-scheduled,
+.badge-status-on-site\/virtual-interview-complete {
+    background: #6f42c1;
+    color: #fff;
+}
+
+.badge-status-offer-received {
+    background: #198754;
+    color: #fff;
+}
+
+.badge-status-offer-accepted {
+    background: #198754;
+    color: #fff;
+}
+
+.badge-status-offer-declined {
+    background: #dc3545;
+    color: #fff;
+}
+
+.badge-status-rejected,
+.badge-status-no-response,
+.badge-status-position-closed {
+    background: #dc3545;
+    color: #fff;
+}
+
+.badge-status-withdrawn {
+    background: #6c757d;
+    color: #fff;
+}
+
+/* Job detail grid */
+.detail-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 1rem;
+}
+
+.detail-grid h4 {
+    margin-bottom: 0.25rem;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--muted-color);
+}
+
+.detail-grid p {
+    margin-bottom: 0;
+}
+
+/* Action buttons row */
+.detail-actions {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+    align-items: center;
+}
+
+.detail-actions form {
+    margin: 0;
+}
+
+.detail-actions button {
+    margin: 0;
+}
+
+/* Filter form */
+.filter-form {
+    margin-bottom: 1.5rem;
+}
+
+.filter-form fieldset {
+    margin-bottom: 0;
+}
+
+/* Form actions */
+.form-actions {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 1rem;
+}
+
+/* Flash messages */
+.flash {
+    padding: 0.75rem 1rem;
+    border-radius: 4px;
+    margin-bottom: 1rem;
+}
+
+.flash-success {
+    background: #d1e7dd;
+    color: #0f5132;
+    border: 1px solid #badbcc;
+}
+
+.flash-error {
+    background: #f8d7da;
+    color: #842029;
+    border: 1px solid #f5c2c7;
+}
+
+/* Jobs table */
+.jobs-table {
+    font-size: 0.9rem;
+}
+
+.jobs-table th a {
+    text-decoration: none;
+    color: inherit;
+}
+
+.jobs-table td {
+    vertical-align: middle;
+}
+
+/* Document viewer */
+.document-content {
+    line-height: 1.7;
+}
+
+.document-content h1 {
+    font-size: 1.5rem;
+}
+
+.document-content h2 {
+    font-size: 1.25rem;
+}
+
+/* Hidden badge */
+.badge-hidden {
+    background: #6c757d;
+    color: #fff;
+    font-size: 0.7rem;
+    padding: 0.15rem 0.4rem;
+    border-radius: 4px;
+    margin-left: 0.4rem;
+    vertical-align: middle;
+}
+
+/* Nav active link */
+nav a.active {
+    font-weight: 700;
+}
+
+/* Footer spacing */
+footer {
+    margin-top: 3rem;
+    padding: 1rem 0;
+    text-align: center;
+    color: var(--muted-color);
+}

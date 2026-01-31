@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}Job Tracker{% endblock %}</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <nav class="container-fluid">
+        <ul>
+            <li><strong>Job Tracker</strong></li>
+        </ul>
+        <ul>
+            <li><a href="{{ url_for('dashboard') }}" {% if request.endpoint == 'dashboard' %}class="active"{% endif %}>Dashboard</a></li>
+            <li><a href="{{ url_for('jobs_list') }}" {% if request.endpoint in ('jobs_list', 'job_detail', 'job_edit') %}class="active"{% endif %}>Jobs</a></li>
+            <li><a href="{{ url_for('documents') }}" {% if request.endpoint in ('documents', 'document_view') %}class="active"{% endif %}>Documents</a></li>
+            <li><a href="{{ url_for('base_resume') }}" target="_blank">Base Resume</a></li>
+            <li><a href="{{ url_for('job_new') }}" role="button" class="outline">+ Add Job</a></li>
+        </ul>
+    </nav>
+
+    <main class="container">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        {% for category, message in messages %}
+        <div class="flash flash-{{ category }}" role="alert">
+            {{ message }}
+        </div>
+        {% endfor %}
+        {% endif %}
+        {% endwith %}
+
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer class="container">
+        <small>Job Search Tracker &mdash; local use only</small>
+    </footer>
+</body>
+</html>

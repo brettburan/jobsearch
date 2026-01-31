@@ -1,0 +1,36 @@
+# Python
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+
+# IDE / Editor
+.claude/
+.vscode/
+.idea/
+
+# Personal data (never commit actual resumes, cover letters, or tracker)
+job_tracker.csv
+Resumes/
+CoverLetters/
+*.pdf
+*.docx
+
+# Environment config
+.env
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Personal docs that may exist locally
+HIGH_PAYING_JOBS_ACTION_PLAN.md
+APPLY_NOW_GUIDE.md
+QUICK_START.md
+resume_customization_guide.md
+company_benefits_comparison.md
+Application_Checklists/
+Supporting_Documents/
+
+# Root-level resume variants (personal, if any)
+/*_Resume_*.md

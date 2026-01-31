@@ -1,0 +1,126 @@
+{% extends "base.html" %}
+{% block title %}{% if job %}Edit {{ job.Company }}{% else %}Add New Job{% endif %} - Job Tracker{% endblock %}
+{% block content %}
+<h2>{% if job %}Edit: {{ job.Company }} &mdash; {{ job.Position }}{% else %}Add New Job{% endif %}</h2>
+
+<form method="post" action="{% if job %}{{ url_for('job_edit', index=index) }}{% else %}{{ url_for('job_new') }}{% endif %}">
+    <div class="grid">
+        <label>
+            Company
+            <input type="text" name="Company" value="{{ job.Company if job else '' }}" required>
+        </label>
+        <label>
+            Position
+            <input type="text" name="Position" value="{{ job.Position if job else '' }}" required>
+        </label>
+    </div>
+
+    <div class="grid">
+        <label>
+            Location
+            <input type="text" name="Location" value="{{ job.Location if job else '' }}" placeholder="e.g., Remote US, Hybrid - Herndon VA">
+        </label>
+        <label>
+            Priority
+            <select name="Priority">
+                {% for p in ['Critical', 'High', 'Medium', 'Low'] %}
+                <option value="{{ p }}" {% if job and job.Priority == p %}selected{% elif not job and p == 'Medium' %}selected{% endif %}>{{ p }}</option>
+                {% endfor %}
+            </select>
+        </label>
+    </div>
+
+    <div class="grid">
+        <label>
+            Base Salary
+            <input type="text" name="Salary (Base)" value="{{ job['Salary (Base)'] if job else '' }}" placeholder="e.g., $180k-$250k">
+        </label>
+        <label>
+            Total Comp Est.
+            <input type="text" name="Total Comp Est." value="{{ job['Total Comp Est.'] if job else '' }}" placeholder="e.g., $200k-$300k">
+        </label>
+    </div>
+
+    <label>
+        Job URL
+        <input type="url" name="Job URL" value="{{ job['Job URL'] if job else '' }}" placeholder="https://...">
+    </label>
+
+    <div class="grid">
+        <label>
+            Status
+            <select name="Status">
+                {% for s in statuses %}
+                <option value="{{ s }}" {% if job and job.Status == s %}selected{% elif not job and s == 'Not Applied' %}selected{% endif %}>{{ s }}</option>
+                {% endfor %}
+            </select>
+        </label>
+        <label>
+            Interview Stage
+            <select name="Interview Stage">
+                {% for s in stages %}
+                <option value="{{ s }}" {% if job and job['Interview Stage'] == s %}selected{% endif %}>{{ s }}</option>
+                {% endfor %}
+            </select>
+        </label>
+    </div>
+
+    <div class="grid">
+        <label>
+            Applied Date
+            <input type="date" name="Applied Date" value="{{ job['Applied Date'] if job else '' }}">
+        </label>
+        <label>
+            Next Follow-Up
+            <input type="date" name="Next Follow-Up" value="{{ job['Next Follow-Up'] if job else '' }}">
+        </label>
+    </div>
+
+    <fieldset>
+        <legend>Contact Info</legend>
+        <div class="grid">
+            <label>
+                Name
+                <input type="text" name="Contact Name" value="{{ job['Contact Name'] if job else '' }}">
+            </label>
+            <label>
+                Email
+                <input type="email" name="Contact Email" value="{{ job['Contact Email'] if job else '' }}">
+            </label>
+            <label>
+                Phone
+                <input type="tel" name="Contact Phone" value="{{ job['Contact Phone'] if job else '' }}">
+            </label>
+        </div>
+        <label>
+            Last Contact Date
+            <input type="date" name="Last Contact Date" value="{{ job['Last Contact Date'] if job else '' }}">
+        </label>
+    </fieldset>
+
+    {% if job %}
+    <label>
+        Notes (existing)
+        <textarea name="notes_replace" rows="3">{{ job.Notes }}</textarea>
+    </label>
+    <label>
+        Append Note (timestamped)
+        <input type="text" name="notes_append" placeholder="Type here to add a timestamped note">
+    </label>
+    {% else %}
+    <label>
+        Notes
+        <textarea name="Notes" rows="3" placeholder="Initial notes about this position"></textarea>
+    </label>
+    {% endif %}
+
+    <div class="form-actions">
+        <button type="submit">{% if job %}Save Changes{% else %}Add Job{% endif %}</button>
+        {% if job %}
+        <a href="{{ url_for('job_detail', index=index) }}" role="button" class="outline secondary">Cancel</a>
+        {% else %}
+        <a href="{{ url_for('jobs_list') }}" role="button" class="outline secondary">Cancel</a>
+        {% endif %}
+    </div>
+</form>
+{% endblock %}

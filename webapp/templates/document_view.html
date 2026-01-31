@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block title %}{{ filename }} - Job Tracker{% endblock %}
+{% block content %}
+<div class="detail-actions">
+    <a href="{{ url_for('documents') }}" role="button" class="outline secondary">Back to Documents</a>
+</div>
+
+<article class="document-content">
+    {{ content | safe }}
+</article>
+{% endblock %}

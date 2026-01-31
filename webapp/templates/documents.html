@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+{% block title %}Documents - Job Tracker{% endblock %}
+{% block content %}
+<h2>Documents</h2>
+
+<h3>Resumes</h3>
+{% if docs.resumes %}
+<figure>
+<table>
+    <thead>
+        <tr>
+            <th>Company</th>
+            <th>View</th>
+            <th>Download</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% set companies = [] %}
+        {% for doc in docs.resumes %}
+        {% if doc.type == 'md' %}
+        <tr>
+            <td>{{ doc.company }}</td>
+            <td><a href="{{ url_for('document_view', path=doc.path) }}">View</a></td>
+            <td>
+                {% set pdf_name = doc.filename | replace('.md', '.pdf') %}
+                <a href="{{ url_for('document_download', filename=pdf_name) }}">Download PDF</a>
+            </td>
+        </tr>
+        {% endif %}
+        {% endfor %}
+    </tbody>
+</table>
+</figure>
+{% else %}
+<p>No resumes found.</p>
+{% endif %}
+
+<h3>Cover Letters</h3>
+{% if docs.cover_letters %}
+<figure>
+<table>
+    <thead>
+        <tr>
+            <th>Company</th>
+            <th>View</th>
+            <th>Download</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for doc in docs.cover_letters %}
+        {% if doc.type == 'md' %}
+        <tr>
+            <td>{{ doc.company }}</td>
+            <td><a href="{{ url_for('document_view', path=doc.path) }}">View</a></td>
+            <td>
+                {% set pdf_name = doc.filename | replace('.md', '.pdf') %}
+                <a href="{{ url_for('document_download', filename=pdf_name) }}">Download PDF</a>
+            </td>
+        </tr>
+        {% endif %}
+        {% endfor %}
+    </tbody>
+</table>
+</figure>
+{% else %}
+<p>No cover letters found.</p>
+{% endif %}
+{% endblock %}

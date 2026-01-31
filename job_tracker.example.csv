@@ -1,0 +1,4 @@
+Company,Position,Location,Salary (Base),Total Comp Est.,Status,Applied Date,Job URL,Contact Name,Contact Email,Contact Phone,Last Contact Date,Next Follow-Up,Interview Stage,Notes,Priority,Hidden
+Acme Corp,Senior Security Engineer,Remote US,$180k-$220k,$200k-$260k,Applied,2026-01-15,https://example.com/jobs/123,Jane Smith,jane@acme.com,,,2026-01-22,Recruiter Screen,Submitted via careers page.,High,
+Globex Inc,Red Team Consultant,Hybrid - New York NY,$150k-$200k,$170k-$230k,Not Applied,,https://example.com/jobs/456,,,,,,,,Medium,
+Initech,Penetration Tester,Remote US,$160k-$190k,$180k-$210k,Phone Screen Complete,2026-01-10,https://example.com/jobs/789,Bob Jones,bob@initech.com,,2026-01-20,2026-01-27,Technical Phone,Good culture fit. Technical round next week.,High,

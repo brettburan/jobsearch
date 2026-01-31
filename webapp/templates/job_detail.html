@@ -1,0 +1,111 @@
+{% extends "base.html" %}
+{% block title %}{{ job.Company }} - {{ job.Position }} - Job Tracker{% endblock %}
+{% block content %}
+<hgroup>
+    <h2>{{ job.Company }}</h2>
+    <p>{{ job.Position }}</p>
+</hgroup>
+
+<div class="detail-actions">
+    {% if job['Job URL'] %}
+    <a href="{{ job['Job URL'] }}" target="_blank" rel="noopener" role="button">View Posting</a>
+    {% endif %}
+    <a href="{{ url_for('job_edit', index=index) }}" role="button" class="outline">Edit</a>
+    {% if job.Hidden and job.Hidden|lower == 'yes' %}
+    <form method="post" action="{{ url_for('job_unhide', index=index) }}" style="display:inline">
+        <button type="submit" class="outline">Unhide</button>
+    </form>
+    {% else %}
+    <form method="post" action="{{ url_for('job_hide', index=index) }}" style="display:inline"
+          onsubmit="return confirm('Hide {{ job.Company }} - {{ job.Position }}?');">
+        <button type="submit" class="outline secondary">Hide</button>
+    </form>
+    {% endif %}
+    <a href="{{ url_for('jobs_list') }}" role="button" class="outline secondary">Back to List</a>
+</div>
+
+<article>
+    <div class="detail-grid">
+        <div>
+            <h4>Status</h4>
+            <span class="badge badge-status-{{ job.Status | replace(' ', '-') | lower }}">{{ job.Status }}</span>
+        </div>
+        <div>
+            <h4>Priority</h4>
+            <span class="badge badge-priority-{{ job.Priority | lower }}">{{ job.Priority }}</span>
+        </div>
+        <div>
+            <h4>Location</h4>
+            <p>{{ job.Location or '&mdash;' }}</p>
+        </div>
+        <div>
+            <h4>Base Salary</h4>
+            <p>{{ job['Salary (Base)'] or '&mdash;' }}</p>
+        </div>
+        <div>
+            <h4>Total Comp Est.</h4>
+            <p>{{ job['Total Comp Est.'] or '&mdash;' }}</p>
+        </div>
+        <div>
+            <h4>Applied Date</h4>
+            <p>{{ job['Applied Date'] or '&mdash;' }}</p>
+        </div>
+        <div>
+            <h4>Interview Stage</h4>
+            <p>{{ job['Interview Stage'] or '&mdash;' }}</p>
+        </div>
+        <div>
+            <h4>Next Follow-Up</h4>
+            <p>{{ job['Next Follow-Up'] or '&mdash;' }}</p>
+        </div>
+    </div>
+</article>
+
+{% if job['Job URL'] %}
+<article>
+    <h4>Job URL</h4>
+    <a href="{{ job['Job URL'] }}" target="_blank" rel="noopener">{{ job['Job URL'] }}</a>
+</article>
+{% endif %}
+
+<article>
+    <h4>Contact Info</h4>
+    {% if job['Contact Name'] or job['Contact Email'] or job['Contact Phone'] %}
+    <p>
+        {% if job['Contact Name'] %}<strong>{{ job['Contact Name'] }}</strong><br>{% endif %}
+        {% if job['Contact Email'] %}{{ job['Contact Email'] }}<br>{% endif %}
+        {% if job['Contact Phone'] %}{{ job['Contact Phone'] }}<br>{% endif %}
+    </p>
+    <p>Last Contact: {{ job['Last Contact Date'] or '&mdash;' }}</p>
+    {% else %}
+    <p>No contact info recorded.</p>
+    {% endif %}
+</article>
+
+<article>
+    <h4>Documents</h4>
+    {% if company_docs.resume or company_docs.cover_letter %}
+    <div class="detail-actions">
+        {% if company_docs.resume %}
+        <a href="{{ url_for('document_view', path=company_docs.resume.md_path) }}" role="button" class="outline">View Resume</a>
+        <a href="{{ url_for('document_download', filename=company_docs.resume.pdf_name) }}" role="button" class="outline">Download Resume PDF</a>
+        {% endif %}
+        {% if company_docs.cover_letter %}
+        <a href="{{ url_for('document_view', path=company_docs.cover_letter.md_path) }}" role="button" class="outline">View Cover Letter</a>
+        <a href="{{ url_for('document_download', filename=company_docs.cover_letter.pdf_name) }}" role="button" class="outline">Download Cover Letter PDF</a>
+        {% endif %}
+    </div>
+    {% else %}
+    <p>No tailored documents for {{ job.Company }} yet.</p>
+    {% endif %}
+</article>
+
+<article>
+    <h4>Notes</h4>
+    {% if job.Notes %}
+    <p>{{ job.Notes }}</p>
+    {% else %}
+    <p>No notes.</p>
+    {% endif %}
+</article>
+{% endblock %}
