@@ -164,6 +164,58 @@ jobsearch/
 
 Not Applied, Applied, Phone Screen Scheduled, Phone Screen Complete, Technical Interview Scheduled, Technical Interview Complete, On-Site/Virtual Interview Scheduled, On-Site/Virtual Interview Complete, Offer Received, Offer Accepted, Offer Declined, Rejected, Withdrawn, No Response, Position Closed
 
+## Using with Claude Code
+
+This project includes a `CLAUDE.md` file that gives [Claude Code](https://docs.anthropic.com/en/docs/claude-code) context about the codebase. With Claude Code you can manage your job search conversationally:
+
+- **Add jobs**: "Add a Senior Security Engineer position at Acme Corp, remote, $200k-$250k base"
+- **Tailor resumes**: "Create a resume for the Acme Corp position emphasizing cloud security and Python"
+- **Write cover letters**: "Write a cover letter for Acme Corp that highlights my penetration testing experience"
+- **Update status**: "Mark the Acme Corp application as applied with today's date"
+- **Research**: "Find the job posting URL for this position and add it to the tracker"
+
+### Setup
+
+1. Install [Claude Code](https://docs.anthropic.com/en/docs/claude-code)
+2. Run `claude` from the project root
+3. Claude will automatically read `CLAUDE.md` for project context
+
+### Customizing CLAUDE.md
+
+Edit `CLAUDE.md` to add your own context that helps Claude assist you:
+
+- Your background and target roles
+- Job search criteria (location, salary, work arrangement)
+- Resume emphasis areas per company type
+- Any terminology translations (e.g., government to commercial language)
+
+`CLAUDE.md` is tracked by git, so keep personal details (phone, email, clearance status) out of it -- or add it to `.gitignore` if you want a fully private version.
+
+## Pre-Commit Safety Hook
+
+The repo includes a pre-commit hook (`.githooks/pre-commit`) that scans staged files for personal data patterns before allowing a commit. To set it up:
+
+```bash
+# Configure git to use the hooks directory
+git config core.hooksPath .githooks
+
+# Edit the hook to add your personal patterns
+# (phone number, email, employer name, etc.)
+nano .githooks/pre-commit
+```
+
+Add your patterns to the `PATTERNS` array in the hook:
+
+```bash
+PATTERNS=(
+    "555-123-4567"
+    "janedoe@example\\.com"
+    "My Employer Name"
+)
+```
+
+Any commit containing those strings will be blocked with a clear error message. To bypass intentionally: `git commit --no-verify`.
+
 ## License
 
 MIT -- see [LICENSE](LICENSE).

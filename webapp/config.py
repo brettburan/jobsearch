@@ -5,6 +5,11 @@ Settings can be overridden via environment variables or a .env file.
 """
 
 import os
+from pathlib import Path
+
+from dotenv import load_dotenv
+
+load_dotenv(Path(__file__).resolve().parent.parent / '.env')
 
 # Candidate name used for resume/cover letter file naming.
 # Format: "FirstName_LastName" (underscores, no spaces).

@@ -2,9 +2,13 @@
 Flask web application for the Job Search tracker.
 """
 
+import sys
 from flask import Flask, render_template, request, redirect, url_for, flash, send_file, abort
 from pathlib import Path
 import markdown2
+
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+from convert_resumes import md_to_docx, md_to_pdf, md_to_cover_letter_pdf
 
 from config import BASE_RESUME_FILENAME
 from tracker import (
@@ -227,6 +231,16 @@ def document_download(filename):
         filepath = directory / filename
         if filepath.exists() and filepath.suffix in ('.pdf', '.docx'):
             resolved = filepath.resolve()
-            if str(resolved).startswith(str(directory.resolve())):
-                return send_file(resolved, as_attachment=True)
+            if not str(resolved).startswith(str(directory.resolve())):
+                continue
+            # Auto-regenerate if the source .md is newer than the output
+            md_source = filepath.with_suffix('.md')
+            if md_source.exists() and md_source.stat().st_mtime > filepath.stat().st_mtime:
+                is_cover_letter = directory == COVERLETTERS_DIR
+                if filepath.suffix == '.pdf':
+                    converter = md_to_cover_letter_pdf if is_cover_letter else md_to_pdf
+                else:
+                    converter = md_to_docx
+                converter(str(md_source), str(filepath))
+            return send_file(resolved, as_attachment=True)
     abort(404)
