@@ -20,6 +20,9 @@ CoverLetters/
 .env
 .commit-block-patterns
 
+# Job search state (user-specific)
+job_search_config.json
+
 # OS
 .DS_Store
 Thumbs.db
