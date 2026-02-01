@@ -1,42 +1,79 @@
 #!/usr/bin/env bash
 # Pre-commit hook: block commits that contain personal data patterns.
-# Checks only staged (to-be-committed) files.
+# Checks only staged (to-be-committed) file contents.
+#
+# Pattern sources (all optional, combined):
+#   1. .commit-block-patterns  - one regex per line (gitignored, for your real info)
+#   2. .env CANDIDATE_NAME     - auto-derives FirstName, LastName, Full Name patterns
+#
+# To bypass intentionally: git commit --no-verify
+
+set -euo pipefail
 
 RED='\033[0;31m'
+YELLOW='\033[0;33m'
 NC='\033[0m'
 
-# Patterns that should never appear in committed files.
-# Add your own patterns here (e.g., phone numbers, addresses, employer names).
-PATTERNS=(
-    # Example patterns — customize these for your situation:
-    # "your_phone_number_here"
-    # "your_email_here"
-    # "your_employer_here"
-)
+REPO_ROOT=$(git rev-parse --show-toplevel)
+PATTERNS=()
 
-if [ ${#PATTERNS[@]} -eq 0 ]; then
+# --- Source 1: user-defined patterns file (gitignored) ---
+PATTERNS_FILE="$REPO_ROOT/.commit-block-patterns"
+if [[ -f "$PATTERNS_FILE" ]]; then
+    while IFS= read -r line; do
+        # Skip blank lines and comments
+        [[ -z "$line" || "$line" =~ ^[[:space:]]*# ]] && continue
+        PATTERNS+=("$line")
+    done < "$PATTERNS_FILE"
+fi
+
+# --- Source 2: derive patterns from .env CANDIDATE_NAME ---
+ENV_FILE="$REPO_ROOT/.env"
+if [[ -f "$ENV_FILE" ]]; then
+    CNAME=$(grep -E '^CANDIDATE_NAME=' "$ENV_FILE" | head -1 | cut -d= -f2 | tr -d '[:space:]"'"'")
+    if [[ -n "${CNAME:-}" ]]; then
+        # "First_Last" -> patterns for "First Last", "First_Last", "first.last"
+        FIRST=$(echo "$CNAME" | cut -d_ -f1)
+        LAST=$(echo "$CNAME" | cut -d_ -f2-)
+        if [[ -n "$FIRST" && -n "$LAST" ]]; then
+            # Full name with space
+            PATTERNS+=("${FIRST}[[:space:]_.]${LAST}")
+        fi
+    fi
+fi
+
+if [[ ${#PATTERNS[@]} -eq 0 ]]; then
     exit 0
 fi
 
 PATTERN=$(IFS='|'; echo "${PATTERNS[*]}")
 
-# Only check text files that are staged for commit
+# Only check text files that are staged for commit (added, copied, modified)
 STAGED_FILES=$(git diff --cached --name-only --diff-filter=ACM)
 
-if [ -z "$STAGED_FILES" ]; then
+if [[ -z "$STAGED_FILES" ]]; then
     exit 0
 fi
 
-MATCHES=$(echo "$STAGED_FILES" | xargs grep -lE "$PATTERN" 2>/dev/null)
+# Check staged content (not working tree) for patterns
+FOUND=0
+while IFS= read -r file; do
+    # Use git show to read the staged version, not the working copy
+    HITS=$(git show ":$file" 2>/dev/null | grep -nEi "$PATTERN" || true)
+    if [[ -n "$HITS" ]]; then
+        if [[ $FOUND -eq 0 ]]; then
+            echo -e "${RED}BLOCKED:${NC} Personal data pattern detected in staged files:"
+        fi
+        FOUND=1
+        echo -e "  ${YELLOW}$file${NC}"
+        echo "$HITS" | head -3 | sed 's/^/    /'
+    fi
+done <<< "$STAGED_FILES"
 
-if [ -n "$MATCHES" ]; then
-    echo -e "${RED}BLOCKED:${NC} Personal data pattern detected in staged files:"
-    echo "$MATCHES" | while read -r f; do
-        echo "  $f"
-        grep -nE "$PATTERN" "$f" | head -3 | sed 's/^/    /'
-    done
+if [[ $FOUND -ne 0 ]]; then
     echo ""
-    echo "Remove the personal data or update .githooks/pre-commit to adjust patterns."
+    echo "Remove the personal data before committing."
+    echo "Patterns sourced from: .commit-block-patterns + .env CANDIDATE_NAME"
     echo "To bypass (if intentional): git commit --no-verify"
     exit 1
 fi

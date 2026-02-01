@@ -18,6 +18,7 @@ CoverLetters/
 
 # Environment config
 .env
+.commit-block-patterns
 
 # OS
 .DS_Store

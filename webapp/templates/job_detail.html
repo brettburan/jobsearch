@@ -84,16 +84,16 @@
 
 <article>
     <h4>Documents</h4>
-    {% if company_docs.resume or company_docs.cover_letter %}
+    {% if company_docs.resumes or company_docs.cover_letters %}
     <div class="detail-actions">
-        {% if company_docs.resume %}
-        <a href="{{ url_for('document_view', path=company_docs.resume.md_path) }}" role="button" class="outline">View Resume</a>
-        <a href="{{ url_for('document_download', filename=company_docs.resume.pdf_name) }}" role="button" class="outline">Download Resume PDF</a>
-        {% endif %}
-        {% if company_docs.cover_letter %}
-        <a href="{{ url_for('document_view', path=company_docs.cover_letter.md_path) }}" role="button" class="outline">View Cover Letter</a>
-        <a href="{{ url_for('document_download', filename=company_docs.cover_letter.pdf_name) }}" role="button" class="outline">Download Cover Letter PDF</a>
-        {% endif %}
+        {% for resume in company_docs.resumes %}
+        <a href="{{ url_for('document_view', path=resume.md_path) }}" role="button" class="outline">View Resume{% if company_docs.resumes|length > 1 %} ({{ resume.label }}){% endif %}</a>
+        <a href="{{ url_for('document_download', filename=resume.pdf_name) }}" role="button" class="outline">Download Resume PDF{% if company_docs.resumes|length > 1 %} ({{ resume.label }}){% endif %}</a>
+        {% endfor %}
+        {% for cl in company_docs.cover_letters %}
+        <a href="{{ url_for('document_view', path=cl.md_path) }}" role="button" class="outline">View Cover Letter{% if company_docs.cover_letters|length > 1 %} ({{ cl.label }}){% endif %}</a>
+        <a href="{{ url_for('document_download', filename=cl.pdf_name) }}" role="button" class="outline">Download Cover Letter PDF{% if company_docs.cover_letters|length > 1 %} ({{ cl.label }}){% endif %}</a>
+        {% endfor %}
     </div>
     {% else %}
     <p>No tailored documents for {{ job.Company }} yet.</p>

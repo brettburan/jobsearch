@@ -105,7 +105,7 @@ def job_detail(index):
     job, idx = get_job(index)
     if job is None:
         abort(404)
-    company_docs = get_company_documents(job.get('Company', ''))
+    company_docs = get_company_documents(job.get('Company', ''), job.get('Position', ''))
     return render_template('job_detail.html', job=job, index=idx, company_docs=company_docs)
 
 

@@ -222,14 +222,40 @@ def list_documents():
     return {'resumes': resumes, 'cover_letters': cover_letters}
 
 
-def get_company_documents(company):
+def _normalize(text):
+    """Strip to lowercase alphanumeric for fuzzy matching."""
+    import re
+    return re.sub(r'[^a-z0-9]', '', text.lower())
+
+
+def _filter_by_position(docs, company, position, prefix_len):
+    """Narrow a list of document dicts to those whose filename suffix matches
+    the position.  Falls back to the full list if nothing matches."""
+    if len(docs) <= 1 or not position:
+        return docs
+    norm_pos = _normalize(position)
+    norm_company = _normalize(company)
+    matched = []
+    for doc in docs:
+        # Role-specific part of the filename (e.g. "Safeguards" from
+        # "Anthropic_Safeguards")
+        role_suffix = _normalize(doc['company'][len(norm_company):])
+        if role_suffix and role_suffix in norm_pos:
+            matched.append(doc)
+    return matched if matched else docs
+
+
+def get_company_documents(company, position=''):
     """Find resume and cover letter files matching a company name.
 
-    Tries multiple normalizations: spaces→underscores, spaces removed.
-    Returns dict with 'resume' and 'cover_letter' keys, each a dict with
-    md_path/docx_path or None.
+    Uses glob matching so that companies with multiple positions (e.g.,
+    Anthropic_Safeguards + Anthropic_FrontierRedTeam) are all discovered.
+    When *position* is provided and there are multiple matches, narrows
+    results to files whose role suffix appears in the position title.
+    Returns dict with 'resumes' and 'cover_letters' keys, each a list of
+    dicts with md_path/pdf_name/label.
     """
-    result = {'resume': None, 'cover_letter': None}
+    result = {'resumes': [], 'cover_letters': []}
     if not company:
         return result
 
@@ -239,24 +265,35 @@ def get_company_documents(company):
     ]
 
     for suffix in variants:
-        resume_md = RESUMES_DIR / f'{RESUME_PREFIX}{suffix}.md'
-        if resume_md.exists():
-            result['resume'] = {
-                'md_path': str(resume_md),
-                'pdf_name': f'{RESUME_PREFIX}{suffix}.pdf',
-                'company': suffix,
-            }
+        for md_path in sorted(RESUMES_DIR.glob(f'{RESUME_PREFIX}{suffix}*.md')):
+            stem = md_path.stem
+            tag = stem[len(RESUME_PREFIX):]
+            result['resumes'].append({
+                'md_path': str(md_path),
+                'pdf_name': f'{stem}.pdf',
+                'company': tag,
+                'label': tag.replace('_', ' '),
+            })
+        if result['resumes']:
             break
 
     for suffix in variants:
-        cl_md = COVERLETTERS_DIR / f'{COVER_LETTER_PREFIX}{suffix}.md'
-        if cl_md.exists():
-            result['cover_letter'] = {
-                'md_path': str(cl_md),
-                'pdf_name': f'{COVER_LETTER_PREFIX}{suffix}.pdf',
-                'company': suffix,
-            }
+        for md_path in sorted(COVERLETTERS_DIR.glob(f'{COVER_LETTER_PREFIX}{suffix}*.md')):
+            stem = md_path.stem
+            tag = stem[len(COVER_LETTER_PREFIX):]
+            result['cover_letters'].append({
+                'md_path': str(md_path),
+                'pdf_name': f'{stem}.pdf',
+                'company': tag,
+                'label': tag.replace('_', ' '),
+            })
+        if result['cover_letters']:
             break
+
+    result['resumes'] = _filter_by_position(
+        result['resumes'], company, position, len(RESUME_PREFIX))
+    result['cover_letters'] = _filter_by_position(
+        result['cover_letters'], company, position, len(COVER_LETTER_PREFIX))
 
     return result
 

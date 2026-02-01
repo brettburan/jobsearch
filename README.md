@@ -193,28 +193,27 @@ Edit `CLAUDE.md` to add your own context that helps Claude assist you:
 
 ## Pre-Commit Safety Hook
 
-The repo includes a pre-commit hook (`.githooks/pre-commit`) that scans staged files for personal data patterns before allowing a commit. To set it up:
+The repo includes a pre-commit hook (`.githooks/pre-commit`) that scans staged files for personal data patterns before allowing a commit. Patterns come from two sources:
+
+1. **`.commit-block-patterns`** -- a gitignored file with one regex per line (for your real info)
+2. **`.env` `CANDIDATE_NAME`** -- auto-derives name patterns (e.g., `Jane_Doe` blocks "Jane Doe", "Jane_Doe", "jane.doe")
+
+### Setup
 
 ```bash
 # Configure git to use the hooks directory
 git config core.hooksPath .githooks
 
-# Edit the hook to add your personal patterns
-# (phone number, email, employer name, etc.)
-nano .githooks/pre-commit
+# Create your private patterns file
+cat > .commit-block-patterns << 'EOF'
+# One regex per line. This file is gitignored.
+555-123-4567
+janedoe@example\.com
+linkedin\.com/in/janedoe
+EOF
 ```
 
-Add your patterns to the `PATTERNS` array in the hook:
-
-```bash
-PATTERNS=(
-    "555-123-4567"
-    "janedoe@example\\.com"
-    "My Employer Name"
-)
-```
-
-Any commit containing those strings will be blocked with a clear error message. To bypass intentionally: `git commit --no-verify`.
+Any commit containing matching strings will be blocked with a clear error message. To bypass intentionally: `git commit --no-verify`.
 
 ## License
 
