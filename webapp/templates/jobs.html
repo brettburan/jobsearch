@@ -67,7 +67,7 @@
             <td>{{ loop.index }}</td>
             <td>
                 <a href="{{ url_for('job_detail', index=job._index) }}">{{ job.Company }}</a>
-                {% if job.Hidden and job.Hidden|lower == 'yes' %}<span class="badge badge-hidden">Hidden</span>{% endif %}
+                {% if job.Hidden and job.Hidden|lower == 'yes' %}<span class="badge badge-hidden" title="{{ job['Hide Reason'] }}">Hidden</span>{% endif %}
             </td>
             <td>{{ job.Position }}</td>
             <td><span class="badge badge-status-{{ job.Status | replace(' ', '-') | lower }}">{{ job.Status }}</span></td>

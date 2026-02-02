@@ -17,6 +17,7 @@ from tracker import (
     compute_stats, get_followups, list_documents, read_markdown,
     get_company_documents,
     VALID_STATUSES, INTERVIEW_STAGES, FIELDNAMES, PRIORITY_ORDER,
+    HIDE_REASONS,
     RESUMES_DIR, COVERLETTERS_DIR,
 )
 
@@ -106,7 +107,14 @@ def job_detail(index):
     if job is None:
         abort(404)
     company_docs = get_company_documents(job.get('Company', ''), job.get('Position', ''))
-    return render_template('job_detail.html', job=job, index=idx, company_docs=company_docs)
+    why_company_html = None
+    if company_docs['why_company']:
+        why_md = read_markdown(company_docs['why_company'][0]['md_path'])
+        if why_md:
+            why_company_html = markdown2.markdown(why_md, extras=['tables', 'fenced-code-blocks'])
+    return render_template('job_detail.html', job=job, index=idx,
+                           company_docs=company_docs, why_company_html=why_company_html,
+                           hide_reasons=HIDE_REASONS)
 
 
 @app.route('/jobs/<int:index>/edit', methods=['GET', 'POST'])
@@ -174,7 +182,8 @@ def job_delete(index):
 def job_hide(index):
     job, _ = get_job(index)
     if job:
-        hide_job(index)
+        reason = request.form.get('hide_reason', '')
+        hide_job(index, reason=reason)
         flash(f"Hidden: {job['Company']} - {job['Position']}", 'success')
     else:
         flash("Job not found.", 'error')

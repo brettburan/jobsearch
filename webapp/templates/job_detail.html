@@ -15,9 +15,15 @@
     <form method="post" action="{{ url_for('job_unhide', index=index) }}" style="display:inline">
         <button type="submit" class="outline">Unhide</button>
     </form>
+    {% if job['Hide Reason'] %}<span class="badge badge-hidden">Hidden &mdash; {{ job['Hide Reason'] }}</span>{% endif %}
     {% else %}
-    <form method="post" action="{{ url_for('job_hide', index=index) }}" style="display:inline"
-          onsubmit="return confirm('Hide {{ job.Company }} - {{ job.Position }}?');">
+    <form method="post" action="{{ url_for('job_hide', index=index) }}" style="display:inline-flex;align-items:center;gap:0.5rem">
+        <select name="hide_reason" aria-label="Hide reason" style="margin:0;width:auto">
+            <option value="">No reason</option>
+            {% for reason in hide_reasons %}
+            <option value="{{ reason }}">{{ reason }}</option>
+            {% endfor %}
+        </select>
         <button type="submit" class="outline secondary">Hide</button>
     </form>
     {% endif %}
@@ -79,6 +85,15 @@
     <p>Last Contact: {{ job['Last Contact Date'] or '&mdash;' }}</p>
     {% else %}
     <p>No contact info recorded.</p>
+    {% endif %}
+</article>
+
+<article>
+    <h4>Why {{ job.Company }}</h4>
+    {% if why_company_html %}
+    {{ why_company_html | safe }}
+    {% else %}
+    <p><em>No "Why {{ job.Company }}" statement written yet.</em></p>
     {% endif %}
 </article>
 

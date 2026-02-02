@@ -8,18 +8,28 @@ import os
 from datetime import datetime, timedelta
 from pathlib import Path
 
-from config import RESUME_PREFIX, COVER_LETTER_PREFIX
+from config import RESUME_PREFIX, COVER_LETTER_PREFIX, WHY_COMPANY_PREFIX
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 TRACKER_FILE = PROJECT_ROOT / 'job_tracker.csv'
 RESUMES_DIR = PROJECT_ROOT / 'Resumes'
 COVERLETTERS_DIR = PROJECT_ROOT / 'CoverLetters'
+WHYCOMPANY_DIR = PROJECT_ROOT / 'WhyCompany'
 
 FIELDNAMES = [
     'Company', 'Position', 'Location', 'Salary (Base)', 'Total Comp Est.',
     'Status', 'Applied Date', 'Job URL', 'Contact Name', 'Contact Email',
     'Contact Phone', 'Last Contact Date', 'Next Follow-Up', 'Interview Stage',
-    'Notes', 'Priority', 'Hidden',
+    'Notes', 'Priority', 'Hidden', 'Hide Reason',
+]
+
+HIDE_REASONS = [
+    'Not a Good Fit',
+    'Bad Location',
+    'Low Compensation',
+    'Position Closed',
+    'Bad Reviews',
+    'Other',
 ]
 
 VALID_STATUSES = [
@@ -138,12 +148,13 @@ def delete_job(index):
     return True
 
 
-def hide_job(index):
+def hide_job(index, reason=''):
     """Hide job at 0-based index. Returns True if hidden."""
     jobs = load_jobs()
     if not (0 <= index < len(jobs)):
         return False
     jobs[index]['Hidden'] = 'yes'
+    jobs[index]['Hide Reason'] = reason
     save_jobs(jobs)
     return True
 
@@ -154,6 +165,7 @@ def unhide_job(index):
     if not (0 <= index < len(jobs)):
         return False
     jobs[index]['Hidden'] = ''
+    jobs[index]['Hide Reason'] = ''
     save_jobs(jobs)
     return True
 
@@ -242,7 +254,7 @@ def _filter_by_position(docs, company, position, prefix_len):
         role_suffix = _normalize(doc['company'][len(norm_company):])
         if role_suffix and role_suffix in norm_pos:
             matched.append(doc)
-    return matched if matched else docs
+    return matched
 
 
 def get_company_documents(company, position=''):
@@ -255,7 +267,7 @@ def get_company_documents(company, position=''):
     Returns dict with 'resumes' and 'cover_letters' keys, each a list of
     dicts with md_path/pdf_name/label.
     """
-    result = {'resumes': [], 'cover_letters': []}
+    result = {'resumes': [], 'cover_letters': [], 'why_company': []}
     if not company:
         return result
 
@@ -290,10 +302,25 @@ def get_company_documents(company, position=''):
         if result['cover_letters']:
             break
 
+    if WHYCOMPANY_DIR.exists():
+        for suffix in variants:
+            for md_path in sorted(WHYCOMPANY_DIR.glob(f'{WHY_COMPANY_PREFIX}{suffix}*.md')):
+                stem = md_path.stem
+                tag = stem[len(WHY_COMPANY_PREFIX):]
+                result['why_company'].append({
+                    'md_path': str(md_path),
+                    'company': tag,
+                    'label': tag.replace('_', ' '),
+                })
+            if result['why_company']:
+                break
+
     result['resumes'] = _filter_by_position(
         result['resumes'], company, position, len(RESUME_PREFIX))
     result['cover_letters'] = _filter_by_position(
         result['cover_letters'], company, position, len(COVER_LETTER_PREFIX))
+    result['why_company'] = _filter_by_position(
+        result['why_company'], company, position, len(WHY_COMPANY_PREFIX))
 
     return result
 
